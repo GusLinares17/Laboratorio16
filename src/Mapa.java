@@ -25,6 +25,11 @@ public class Mapa {
     public Mapa(String tipoDeTerritorio) {
         this.tipoDeTerritorio = tipoDeTerritorio;
         this.campoDeBatalla = new Ejercito[10][10];
+        seleccionarReinos();
+        generarEjercitos();
+        aplicarBonificacionTerritorio();
+        calcularMetricas();
+        mostrarResultados();
     }
     private void seleccionarReinos() {
         Random random = new Random();
