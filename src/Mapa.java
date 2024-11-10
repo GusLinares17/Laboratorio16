@@ -8,7 +8,6 @@
  * @author Gustavo
  */
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Random;
 public class Mapa {
     String tipoDeTerritorio;
@@ -27,7 +26,11 @@ public class Mapa {
         this.campoDeBatalla = new Ejercito[10][10];
         seleccionarReinos();
         generarEjercitos();
+        mostrarInformacionInicial();
+        mostrarTablero();
         aplicarBonificacionTerritorio();
+        mostrarBonificacion();
+        mostrarTablero();
         calcularMetricas();
         mostrarResultados();
     }
@@ -40,11 +43,15 @@ public class Mapa {
     }
     private void generarEjercitos() {
         Random random = new Random();
-        HashMap<String, Integer> ejercitosPorReino = new HashMap<>();
-        ejercitosPorReino.put(reino1, random.nextInt(10) + 1);
-        ejercitosPorReino.put(reino2, random.nextInt(10) + 1);
-        for (String reino : ejercitosPorReino.keySet()) {
-            int cantidadEjercitos = ejercitosPorReino.get(reino);
+        ArrayList<String> nombresReinos = new ArrayList<>();
+        ArrayList<Integer> cantidadesEjercitos = new ArrayList<>();
+        nombresReinos.add(reino1);
+        cantidadesEjercitos.add(random.nextInt(10) + 1);   
+        nombresReinos.add(reino2);
+        cantidadesEjercitos.add(random.nextInt(10) + 1);
+        for ( int index = 0; index < nombresReinos.size(); index++){
+            String reino = nombresReinos.get(index);
+            int cantidadEjercitos = cantidadesEjercitos.get(index);
             for (int i = 0; i < cantidadEjercitos; i++) {
                 int x, y;
                 do {
@@ -54,6 +61,11 @@ public class Mapa {
                 campoDeBatalla[x][y] = new Ejercito(reino);
             }
         }
+    }
+    private void mostrarInformacionInicial() {
+        System.out.println("Batalla entre: " + reino1 + " vs " + reino2);
+        System.out.println("Tipo de Territorio: " + tipoDeTerritorio);
+        System.out.println("\nCampo de Batalla Inicial:");
     }
     private void aplicarBonificacionTerritorio() {
         for (int i = 0; i < 10; i++) {
@@ -65,7 +77,49 @@ public class Mapa {
             }
         }
     }
-    private void calcularMetricas() {
+    private void mostrarBonificacion() {
+        System.out.print("Bonificacion por tipo de territorio a: ");
+        boolean bonificacionOtorgada = false;
+        
+        if (esBeneficiado(reino1)) {
+            System.out.print(reino1 + " ");
+            bonificacionOtorgada = true;
+        }
+        
+        if (esBeneficiado(reino2)) {
+            System.out.print(reino2);
+            bonificacionOtorgada = true;
+        }
+
+        if (!bonificacionOtorgada) {
+            System.out.print("Ningun reino");
+        }
+
+        System.out.println("\n\nCampo de Batalla con Bonificacion:");
+    }
+     private boolean esBeneficiado(String reino) {
+        return (reino.equals("Inglaterra") && tipoDeTerritorio.equals("Bosque")) ||
+               (reino.equals("Francia") && tipoDeTerritorio.equals("Campo Abierto")) ||
+               (reino.equals("Castilla-Aragon") && tipoDeTerritorio.equals("Montana")) ||
+               (reino.equals("Moros") && tipoDeTerritorio.equals("Desierto")) ||
+               (reino.equals("Sacro Imperio Romano-Germanico") && 
+               (tipoDeTerritorio.equals("Bosque") || tipoDeTerritorio.equals("Playa") || tipoDeTerritorio.equals("Campo Abierto")));
+    }
+    private void mostrarTablero() {
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (campoDeBatalla[i][j] != null) {
+                    String simbolo = campoDeBatalla[i][j].reino.equals(reino1) ? "1" : "2";
+                    System.out.printf("%s:%-8s", simbolo, campoDeBatalla[i][j].getNumeroSoldados() + ":" + campoDeBatalla[i][j].getVidaTotal());
+                } else {
+                    System.out.printf("%-10s", "______");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+      private void calcularMetricas() {
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 if (campoDeBatalla[i][j] != null) {
@@ -83,14 +137,12 @@ public class Mapa {
             }
         }
     }
-    private void mostrarResultados() {
+private void mostrarResultados() {
         double promedioVidaReino1 = cantidadSoldadosReino1 == 0 ? 0 : (double) vidaTotalReino1 / cantidadSoldadosReino1;
         double promedioVidaReino2 = cantidadSoldadosReino2 == 0 ? 0 : (double) vidaTotalReino2 / cantidadSoldadosReino2;
 
-        System.out.println("Batalla entre: " + reino1 + " y " + reino2);
-        System.out.println("Tipo de Territorio: " + tipoDeTerritorio);
-        System.out.println();
-
+        System.out.println("Resultados de la Batalla:");
+        
         System.out.println("Metrica 1 - Mayor vida total:");
         System.out.println(reino1 + ": " + vidaTotalReino1);
         System.out.println(reino2 + ": " + vidaTotalReino2);
@@ -109,4 +161,3 @@ public class Mapa {
         System.out.println("Ganador: " + (promedioVidaReino1 > promedioVidaReino2 ? reino1 : reino2));
     }
 }
-
